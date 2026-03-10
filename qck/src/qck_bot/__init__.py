@@ -1,0 +1,1 @@
+"""qck-bot package."""

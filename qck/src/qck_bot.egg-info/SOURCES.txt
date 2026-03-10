@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+src/qck_bot/__init__.py
+src/qck_bot/backtest.py
+src/qck_bot/cli.py
+src/qck_bot/config.py
+src/qck_bot/data.py
+src/qck_bot/features.py
+src/qck_bot/model.py
+src/qck_bot.egg-info/PKG-INFO
+src/qck_bot.egg-info/SOURCES.txt
+src/qck_bot.egg-info/dependency_links.txt
+src/qck_bot.egg-info/entry_points.txt
+src/qck_bot.egg-info/requires.txt
+src/qck_bot.egg-info/top_level.txt

@@ -1,0 +1,2 @@
+[console_scripts]
+qck-bot = qck_bot.cli:main
