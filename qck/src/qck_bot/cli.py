@@ -4,6 +4,8 @@ import argparse
 import json
 
 from qck_bot.backtest import BacktestConfig, run_backtest, save_backtest_outputs
+from qck_bot.data import DownloadSpec, download_klines, load_klines
+from qck_bot.features import FEATURE_COLUMNS, build_feature_frame
 from qck_bot.data import DownloadSpec, download_klines
 from qck_bot.features import FEATURE_COLUMNS
 from qck_bot.live import LiveConfig, run_live_loop, score_latest_bar, sync_and_score
