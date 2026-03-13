@@ -443,16 +443,6 @@
       </div>
     </div>
 
-    <div class="options-section">
-      <p class="section-label">Options</p>
-      <div class="option-row">
-        <div class="option-toggle" id="realtimeToggle">
-          <div class="toggle-switch"></div>
-          <span class="option-label">Realtime animation</span>
-        </div>
-      </div>
-    </div>
-
     <div class="preview-section">
       <div class="preview-header">
         <p class="preview-label">Preview</p>
@@ -500,11 +490,9 @@
     const warningText = document.getElementById('warningText');
     const dimInfo = document.getElementById('dimInfo');
     const themeToggle = document.getElementById('themeToggle');
-    const realtimeToggle = document.getElementById('realtimeToggle');
 
     let currentImage = null;
     let currentQuality = 'medium';
-    let useRealtime = false;
     let generatedCode = '';
 
     // Theme toggle
@@ -529,12 +517,6 @@
     } else {
       setTheme(false);
     }
-
-    // Realtime toggle
-    realtimeToggle.addEventListener('click', () => {
-      useRealtime = !useRealtime;
-      realtimeToggle.classList.toggle('active', useRealtime);
-    });
 
     // Calculate size preserving aspect ratio
     function calculateSize(maxDim) {
@@ -674,14 +656,13 @@
       const maxDimension = 500;
       const PS = Math.min(8, Math.max(2, Math.floor(maxDimension / Math.max(size.w, size.h))));
 
-      if (useRealtime) {
-        generatedCode = `import turtle
+      # Use tracer(1, 0) for nice animation without manual updates
+      generatedCode = `import turtle
 
 W, H, PS = ${size.w}, ${size.h}, ${PS}
 DATA = "${hexStr}"
 
 screen = turtle.Screen()
-update_every = max(1, (W * H) // 20)
 screen.tracer(1, 0)
 screen.setup(W * PS + 40, H * PS + 40)
 
@@ -703,48 +684,11 @@ for i in range(W * H):
     t.goto(ox + x * PS, oy - y * PS - PS)
     t.goto(ox + x * PS, oy - y * PS)
     t.end_fill()
-    if i > 0 and i % update_every == 0:
-        screen.update()
 
 t.hideturtle()
 screen.update()
 turtle.done()
 `;
-      } else {
-        generatedCode = `import turtle
-
-W, H, PS = ${size.w}, ${size.h}, ${PS}
-DATA = "${hexStr}"
-
-screen = turtle.Screen()
-screen.tracer(0)
-screen.setup(W * PS + 40, H * PS + 40)
-
-t = turtle.Turtle()
-t.hideturtle()
-t.speed(0)
-t.penup()
-
-ox = -(W * PS) // 2
-oy = (H * PS) // 2
-
-for i in range(W * H):
-    x = i % W
-    y = i // W
-    t.goto(ox + x * PS, oy - y * PS)
-    t.color('#' + DATA[i*6:i*6+6])
-    t.begin_fill()
-    t.goto(ox + x * PS + PS, oy - y * PS)
-    t.goto(ox + x * PS + PS, oy - y * PS - PS)
-    t.goto(ox + x * PS, oy - y * PS - PS)
-    t.goto(ox + x * PS, oy - y * PS)
-    t.end_fill()
-
-t.hideturtle()
-screen.update()
-turtle.done()
-`;
-      }
 
       outputCode.textContent = generatedCode;
       copyBtn.disabled = false;
