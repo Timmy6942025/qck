@@ -693,17 +693,12 @@ t.penup()
 ox = -(W * PS) // 2
 oy = (H * PS) // 2
 
+# Draw using dot() - much faster than rectangles
 for i in range(W * H):
     x = i % W
     y = i // W
-    t.goto(ox + x * PS, oy - y * PS)
-    t.color('#' + DATA[i*6:i*6+6])
-    t.begin_fill()
-    t.goto(ox + x * PS + PS, oy - y * PS)
-    t.goto(ox + x * PS + PS, oy - y * PS - PS)
-    t.goto(ox + x * PS, oy - y * PS - PS)
-    t.goto(ox + x * PS, oy - y * PS)
-    t.end_fill()
+    t.goto(ox + x * PS + PS/2, oy - y * PS - PS/2)
+    t.dot(PS, '#' + DATA[i*6:i*6+6])
 
 t.hideturtle()
 screen.update()
