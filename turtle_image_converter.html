@@ -283,7 +283,7 @@
     #previewCanvas {
       display: block;
       max-width: 100%;
-      max-height: 160px;
+      
       margin: 0 auto;
       image-rendering: pixelated;
       border-radius: 3px;
@@ -592,24 +592,38 @@
     function renderPreview() {
       if (!currentImage) return;
 
-      let size;
+      // Fixed preview canvas size
+      const previewW = 200;
+      const previewH = 200;
+      
+      let renderW, renderH;
+      
       if (currentQuality === 'lossless') {
-        const maxPreviewSize = 200;
-        const scale = Math.min(maxPreviewSize / currentImage.width, maxPreviewSize / currentImage.height, 1);
-        size = { w: Math.round(currentImage.width * scale), h: Math.round(currentImage.height * scale) };
+        // Scale to fit while preserving aspect
+        const scale = Math.min(previewW / currentImage.width, previewH / currentImage.height);
+        renderW = Math.round(currentImage.width * scale);
+        renderH = Math.round(currentImage.height * scale);
         dimInfo.textContent = `${currentImage.width}x${currentImage.height}`;
       } else {
+        // Use actual quality resolution - will be scaled up by CSS showing pixelation
         const maxDim = QUALITY_SIZES[currentQuality].maxDim;
-        size = calculateSize(maxDim);
-        dimInfo.textContent = `${size.w}x${size.h}`;
+        const size = calculateSize(maxDim);
+        renderW = size.w;
+        renderH = size.h;
+        dimInfo.textContent = `${renderW}x${renderH}`;
       }
 
-      previewCanvas.width = size.w;
-      previewCanvas.height = size.h;
+      previewCanvas.width = renderW;
+      previewCanvas.height = renderH;
 
       const ctx = previewCanvas.getContext('2d');
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(currentImage, 0, 0, size.w, size.h);
+      ctx.drawImage(currentImage, 0, 0, renderW, renderH);
+
+      // Force canvas to fill preview area with pixelation
+      previewCanvas.style.width = previewW + 'px';
+      previewCanvas.style.height = previewH + 'px';
+      previewCanvas.style.objectFit = 'contain';
 
       previewContainer.classList.add('visible');
     }
