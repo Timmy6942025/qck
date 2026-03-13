@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image to Turtle Code</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --bg-secondary: #ffffff;
+      --text: #1a1a1a;
+      --text-secondary: #737373;
+      --border: #e5e5e5;
+      --accent: #171717;
+      --accent-hover: #404040;
+      --success: #171717;
+      --warning: #f59e0b;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgba(0,0,0,0.05);
+      --transition: 0.2s ease;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0a0a0a;
+      --bg-secondary: #141414;
+      --text: #ededed;
+      --text-secondary: #737373;
+      --border: #262626;
+      --accent: #ededed;
+      --accent-hover: #a3a3a3;
+      --success: #ededed;
+      --warning: #fbbf24;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 48px;
+    }
+
+    h1 {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .theme-toggle {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+
+    .theme-toggle:hover {
+      color: var(--text);
+    }
+
+    .theme-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .upload-area {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+      margin-bottom: 32px;
+      background: var(--bg-secondary);
+    }
+
+    .upload-area:hover {
+      border-color: var(--text-secondary);
+    }
+
+    .upload-area.dragover {
+      border-color: var(--accent);
+      background: var(--bg);
+    }
+
+    .upload-area.has-file {
+      border-style: solid;
+      border-color: var(--border);
+    }
+
+    .upload-area.has-file .upload-label {
+      display: none;
+    }
+
+    .upload-area.has-file .file-info {
+      display: block;
+    }
+
+    .upload-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .upload-label span {
+      color: var(--text);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .file-info {
+      display: none;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .quality-section {
+      margin-bottom: 32px;
+    }
+
+    .quality-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .quality-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .quality-btn {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .quality-btn:hover {
+      border-color: var(--text-secondary);
+      color: var(--text);
+    }
+
+    .quality-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
+    }
+
+    [data-theme="dark"] .quality-btn.active {
+      color: var(--bg);
+    }
+
+    .preview-section {
+      margin-bottom: 32px;
+    }
+
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .preview-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+    }
+
+    .dim-info {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .preview-container {
+      display: none;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .preview-container.visible {
+      display: block;
+    }
+
+    #previewCanvas {
+      display: block;
+      max-width: 100%;
+      max-height: 240px;
+      margin: 0 auto;
+      image-rendering: pixelated;
+      border-radius: 4px;
+    }
+
+    .output-section {
+      margin-bottom: 32px;
+    }
+
+    .output-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    #outputCode {
+      width: 100%;
+      height: 240px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--text);
+      overflow: auto;
+      white-space: pre;
+      resize: none;
+    }
+
+    #outputCode:empty::before {
+      content: "Generated code will appear here";
+      color: var(--text-secondary);
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.8;
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      border-color: var(--text-secondary);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn.success {
+      background: var(--success);
+      color: var(--bg);
+    }
+
+    .warning-text {
+      font-size: 12px;
+      color: var(--warning);
+      min-height: 18px;
+    }
+
+    .info-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 540px) {
+      body {
+        padding: 32px 16px;
+      }
+
+      header {
+        margin-bottom: 32px;
+      }
+
+      .quality-options {
+        flex-wrap: wrap;
+      }
+
+      .quality-btn {
+        min-width: calc(50% - 4px);
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Image to Turtle</h1>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg class="moon-icon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </header>
+
+    <div class="upload-area" id="uploadArea">
+      <p class="upload-label">Drop image here or <span>click to browse</span></p>
+      <p class="file-info" id="fileInfo"></p>
+    </div>
+    <input type="file" id="fileInput" accept="image/*">
+
+    <div class="quality-section">
+      <p class="quality-label">Quality</p>
+      <div class="quality-options">
+        <button class="quality-btn" data-quality="low">Low</button>
+        <button class="quality-btn active" data-quality="medium">Medium</button>
+        <button class="quality-btn" data-quality="high">High</button>
+        <button class="quality-btn" data-quality="extrahigh">Extra High</button>
+        <button class="quality-btn" data-quality="lossless">Lossless</button>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-header">
+        <p class="preview-label">Preview</p>
+        <span class="dim-info" id="dimInfo"></span>
+      </div>
+      <div class="preview-container" id="previewContainer">
+        <canvas id="previewCanvas"></canvas>
+      </div>
+    </div>
+
+    <div class="output-section">
+      <p class="output-label">Python Code</p>
+      <div id="outputCode"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="generateBtn" disabled>Generate</button>
+      <button class="btn btn-secondary" id="copyBtn" disabled>Copy</button>
+      <button class="btn btn-secondary" id="downloadBtn">Download</button>
+    </div>
+
+    <p class="warning-text" id="warningText"></p>
+    <p class="info-text">Preserves aspect ratio. Limited modes use max dimension.</p>
+  </div>
+
+  <script>
+    const QUALITY_SIZES = {
+      low: { maxDim: 30 },
+      medium: { maxDim: 60 },
+      high: { maxDim: 100 },
+      extrahigh: { maxDim: 200 },
+      lossless: null
+    };
+
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInfo = document.getElementById('fileInfo');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const outputCode = document.getElementById('outputCode');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const qualityBtns = document.querySelectorAll('.quality-btn');
+    const warningText = document.getElementById('warningText');
+    const dimInfo = document.getElementById('dimInfo');
+    const themeToggle = document.getElementById('themeToggle');
+
+    let currentImage = null;
+    let currentQuality = 'medium';
+    let generatedCode = '';
+
+    // Theme toggle
+    const sunIcon = themeToggle.querySelector('.sun-icon');
+    const moonIcon = themeToggle.querySelector('.moon-icon');
+
+    function setTheme(dark) {
+      document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      sunIcon.style.display = dark ? 'none' : 'block';
+      moonIcon.style.display = dark ? 'block' : 'none';
+      localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      setTheme(!isDark);
+    });
+
+    // Init theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setTheme(savedTheme === 'dark');
+    } else {
+      setTheme(false);
+    }
+
+    // Calculate size preserving aspect ratio
+    function calculateSize(maxDim) {
+      if (!currentImage) return { w: maxDim, h: maxDim };
+      const aspectRatio = currentImage.width / currentImage.height;
+      if (aspectRatio >= 1) {
+        return { w: maxDim, h: Math.round(maxDim / aspectRatio) };
+      } else {
+        return { h: maxDim, w: Math.round(maxDim * aspectRatio) };
+      }
+    }
+
+    // Quality button handling
+    qualityBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        qualityBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentQuality = btn.dataset.quality;
+        updateWarning();
+        if (currentImage) renderPreview();
+      });
+    });
+
+    function updateWarning() {
+      if (currentQuality === 'lossless' && currentImage) {
+        const pixels = currentImage.width * currentImage.height;
+        warningText.textContent = pixels > 10000 
+          ? `Warning: ${currentImage.width}x${currentImage.height} (${pixels.toLocaleString()} pixels) may crash Trinket.`
+          : '';
+      } else {
+        warningText.textContent = '';
+      }
+    }
+
+    // File input handling
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) handleFile(file);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) handleFile(file);
+    });
+
+    function handleFile(file) {
+      fileInfo.textContent = file.name;
+      uploadArea.classList.add('has-file');
+
+      const img = new Image();
+      img.onload = () => {
+        currentImage = img;
+        renderPreview();
+        generateBtn.disabled = false;
+        updateWarning();
+      };
+      img.src = URL.createObjectURL(file);
+    }
+
+    function renderPreview() {
+      if (!currentImage) return;
+
+      let size;
+      if (currentQuality === 'lossless') {
+        const maxPreviewSize = 200;
+        const scale = Math.min(maxPreviewSize / currentImage.width, maxPreviewSize / currentImage.height, 1);
+        size = { w: Math.round(currentImage.width * scale), h: Math.round(currentImage.height * scale) };
+        dimInfo.textContent = `${currentImage.width}x${currentImage.height}`;
+      } else {
+        const maxDim = QUALITY_SIZES[currentQuality].maxDim;
+        size = calculateSize(maxDim);
+        dimInfo.textContent = `${size.w}x${size.h}`;
+      }
+
+      previewCanvas.width = size.w;
+      previewCanvas.height = size.h;
+
+      const ctx = previewCanvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(currentImage, 0, 0, size.w, size.h);
+
+      previewContainer.classList.add('visible');
+    }
+
+    function resizeImageData(img, targetW, targetH) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = img.width;
+      tempCanvas.height = img.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(img, 0, 0);
+
+      const dstCanvas = document.createElement('canvas');
+      dstCanvas.width = targetW;
+      dstCanvas.height = targetH;
+      const dstCtx = dstCanvas.getContext('2d');
+      dstCtx.imageSmoothingEnabled = false;
+      dstCtx.drawImage(tempCanvas, 0, 0, targetW, targetH);
+
+      return dstCtx.getImageData(0, 0, targetW, targetH);
+    }
+
+    generateBtn.addEventListener('click', () => {
+      if (!currentImage) return;
+
+      let size;
+      if (currentQuality === 'lossless') {
+        size = { w: currentImage.width, h: currentImage.height };
+      } else {
+        const maxDim = QUALITY_SIZES[currentQuality].maxDim;
+        size = calculateSize(maxDim);
+      }
+
+      const imageData = resizeImageData(currentImage, size.w, size.h);
+      const data = imageData.data;
+
+      let hexStr = '';
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i + 1], b = data[i + 2];
+        hexStr += (r < 16 ? '0' : '') + r.toString(16) +
+                  (g < 16 ? '0' : '') + g.toString(16) +
+                  (b < 16 ? '0' : '') + b.toString(16);
+      }
+
+      const maxDimension = 500;
+      const PS = Math.min(8, Math.max(2, Math.floor(maxDimension / Math.max(size.w, size.h))));
+
+      generatedCode = `import turtle
+
+W, H, PS = ${size.w}, ${size.h}, ${PS}
+DATA = "${hexStr}"
+
+screen = turtle.Screen()
+screen.tracer(0)
+screen.setup(W * PS + 40, H * PS + 40)
+
+t = turtle.Turtle()
+t.hideturtle()
+t.speed(0)
+t.penup()
+
+ox = -(W * PS) // 2
+oy = (H * PS) // 2
+
+for i in range(W * H):
+    x = i % W
+    y = i // W
+    t.goto(ox + x * PS, oy - y * PS)
+    t.color('#' + DATA[i*6:i*6+6])
+    t.begin_fill()
+    t.goto(ox + x * PS + PS, oy - y * PS)
+    t.goto(ox + x * PS + PS, oy - y * PS - PS)
+    t.goto(ox + x * PS, oy - y * PS - PS)
+    t.goto(ox + x * PS, oy - y * PS)
+    t.end_fill()
+
+t.hideturtle()
+screen.update()
+turtle.done()
+`;
+
+      outputCode.textContent = generatedCode;
+      copyBtn.disabled = false;
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      if (!generatedCode) return;
+      try {
+        await navigator.clipboard.writeText(generatedCode);
+        copyBtn.textContent = 'Copied';
+        copyBtn.classList.add('success');
+        setTimeout(() => {
+          copyBtn.textContent = 'Copy';
+          copyBtn.classList.remove('success');
+        }, 1500);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (!generatedCode) return;
+      const blob = new Blob([generatedCode], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'turtle_image.py';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
