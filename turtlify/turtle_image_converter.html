@@ -703,7 +703,6 @@ screen.setup(W * PS + 40, H * PS + 40)
 t = turtle.Turtle()
 t.speed(0)
 t.shape('square')
-t.shapesize(PS / 20)
 t.penup()
 
 ox = -(W * PS) // 2
@@ -713,8 +712,7 @@ for y in range(H):
     for x in range(W):
         color = '#' + DATA[(y * W + x)*6:(y * W + x)*6+6]
         t.goto(ox + x * PS, oy - y * PS)
-        t.color(color)
-        t.stamp()
+        t.dot(PS + 1, color)
 
 t.hideturtle()
 screen.update()
