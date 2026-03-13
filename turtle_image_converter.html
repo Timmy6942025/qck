@@ -589,27 +589,50 @@
       img.src = URL.createObjectURL(file);
     }
 
+    // Cap for lossless mode (Trinket can't handle huge images)
+    const MAX_LOSSLESS = 500;
+    
+    function getLosslessSize() {
+      if (!currentImage) return { w: MAX_LOSSLESS, h: MAX_LOSSLESS };
+      const aspectRatio = currentImage.width / currentImage.height;
+      if (currentImage.width > MAX_LOSSLESS || currentImage.height > MAX_LOSSLESS) {
+        if (aspectRatio >= 1) {
+          return { w: MAX_LOSSLESS, h: Math.round(MAX_LOSSLESS / aspectRatio) };
+        } else {
+          return { h: MAX_LOSSLESS, w: Math.round(MAX_LOSSLESS * aspectRatio) };
+        }
+      }
+      return { w: currentImage.width, h: currentImage.height };
+    }
+
     function renderPreview() {
       if (!currentImage) return;
 
-      // Fixed preview canvas size
       const previewW = 200;
       const previewH = 200;
       
-      let renderW, renderH;
+      let renderW, renderH, actualW, actualH;
       
       if (currentQuality === 'lossless') {
-        // Scale to fit while preserving aspect
-        const scale = Math.min(previewW / currentImage.width, previewH / currentImage.height);
-        renderW = Math.round(currentImage.width * scale);
-        renderH = Math.round(currentImage.height * scale);
-        dimInfo.textContent = `${currentImage.width}x${currentImage.height}`;
+        const size = getLosslessSize();
+        actualW = size.w;
+        actualH = size.h;
+        // Preview scaled to fit
+        const scale = Math.min(previewW / actualW, previewH / actualH);
+        renderW = Math.round(actualW * scale);
+        renderH = Math.round(actualH * scale);
+        if (currentImage.width > MAX_LOSSLESS || currentImage.height > MAX_LOSSLESS) {
+          dimInfo.textContent = `${currentImage.width}x${currentImage.height} (capped to ${actualW}x${actualH})`;
+        } else {
+          dimInfo.textContent = `${actualW}x${actualH}`;
+        }
       } else {
-        // Use actual quality resolution - will be scaled up by CSS showing pixelation
         const maxDim = QUALITY_SIZES[currentQuality].maxDim;
         const size = calculateSize(maxDim);
         renderW = size.w;
         renderH = size.h;
+        actualW = renderW;
+        actualH = renderH;
         dimInfo.textContent = `${renderW}x${renderH}`;
       }
 
@@ -620,7 +643,6 @@
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(currentImage, 0, 0, renderW, renderH);
 
-      // Force canvas to fill preview area with pixelation
       previewCanvas.style.width = previewW + 'px';
       previewCanvas.style.height = previewH + 'px';
       previewCanvas.style.objectFit = 'contain';
@@ -650,7 +672,7 @@
 
       let size;
       if (currentQuality === 'lossless') {
-        size = { w: currentImage.width, h: currentImage.height };
+        size = getLosslessSize();
       } else {
         const maxDim = QUALITY_SIZES[currentQuality].maxDim;
         size = calculateSize(maxDim);
