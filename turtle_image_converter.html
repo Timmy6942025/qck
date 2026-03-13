@@ -712,7 +712,7 @@
           rows.push(row);
         }
 
-        const rleData = JSON.stringify(rows).replace(/"/g, '');
+        const rleData = JSON.stringify(rows);
 
         generatedCode = `import turtle
 
@@ -725,6 +725,8 @@ screen.setup(W * PS + 40, H * PS + 40)
 
 t = turtle.Turtle()
 t.speed(0)
+t.shape('square')
+t.shapesize(PS / 20)
 t.penup()
 
 ox = -(W * PS) // 2
@@ -733,10 +735,16 @@ oy = (H * PS) // 2
 for y, row in enumerate(DATA):
     x = 0
     for count, color in row:
-        for _ in range(count):
+        for i in range(count):
             t.goto(ox + x * PS, oy - y * PS)
-            t.dot(PS + 1, '#' + color)
+            t.color(color)
+            t.stamp()
             x += 1
+
+t.hideturtle()
+screen.update()
+turtle.done()
+`;
 
 t.hideturtle()
 screen.update()
@@ -763,16 +771,19 @@ screen.setup(W * PS + 40, H * PS + 40)
 
 t = turtle.Turtle()
 t.speed(0)
+t.shape('square')
+t.shapesize(PS / 20)
 t.penup()
 
 ox = -(W * PS) // 2
 oy = (H * PS) // 2
 
-for i in range(W * H):
-    x = i % W
-    y = i // W
-    t.goto(ox + x * PS, oy - y * PS)
-    t.dot(PS + 1, '#' + DATA[i*6:i*6+6])
+for y in range(H):
+    for x in range(W):
+        color = '#' + DATA[(y * W + x)*6:(y * W + x)*6+6]
+        t.goto(ox + x * PS, oy - y * PS)
+        t.color(color)
+        t.stamp()
 
 t.hideturtle()
 screen.update()
