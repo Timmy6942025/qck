@@ -656,7 +656,6 @@
       const maxDimension = 500;
       const PS = Math.min(8, Math.max(2, Math.floor(maxDimension / Math.max(size.w, size.h))));
 
-      # Use tracer(1, 0) for nice animation without manual updates
       generatedCode = `import turtle
 
 W, H, PS = ${size.w}, ${size.h}, ${PS}
