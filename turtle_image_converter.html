@@ -438,7 +438,7 @@
         <button class="quality-btn" data-quality="low">Low</button>
         <button class="quality-btn active" data-quality="medium">Medium</button>
         <button class="quality-btn" data-quality="high">High</button>
-        <button class="quality-btn" data-quality="extrahigh">Extra High</button>
+        <button class="quality-btn" data-quality="optimized">Optimized</button>
         <button class="quality-btn" data-quality="lossless">Lossless</button>
       </div>
     </div>
@@ -474,6 +474,7 @@
       medium: { maxDim: 60 },
       high: { maxDim: 100 },
       extrahigh: { maxDim: 200 },
+      optimized: { maxDim: 100 },
       lossless: null
     };
 
@@ -606,10 +607,22 @@
       if (currentQuality === 'lossless') {
         actualW = currentImage.width;
         actualH = currentImage.height;
-        // Preview scaled to fit
         const scale = Math.min(previewW / actualW, previewH / actualH);
         renderW = Math.round(actualW * scale);
         renderH = Math.round(actualH * scale);
+        dimInfo.textContent = `${actualW}x${actualH}`;
+      } else if (currentQuality === 'optimized') {
+        const maxDim = 100;
+        if (currentImage.width > maxDim || currentImage.height > maxDim) {
+          const scale = maxDim / Math.max(currentImage.width, currentImage.height);
+          actualW = Math.round(currentImage.width * scale);
+          actualH = Math.round(currentImage.height * scale);
+        } else {
+          actualW = currentImage.width;
+          actualH = currentImage.height;
+        }
+        renderW = actualW;
+        renderH = actualH;
         dimInfo.textContent = `${actualW}x${actualH}`;
       } else {
         const maxDim = QUALITY_SIZES[currentQuality].maxDim;
@@ -658,6 +671,14 @@
       let size;
       if (currentQuality === 'lossless') {
         size = { w: currentImage.width, h: currentImage.height };
+      } else if (currentQuality === 'optimized') {
+        const maxDim = 100;
+        if (currentImage.width > maxDim || currentImage.height > maxDim) {
+          const scale = maxDim / Math.max(currentImage.width, currentImage.height);
+          size = { w: Math.round(currentImage.width * scale), h: Math.round(currentImage.height * scale) };
+        } else {
+          size = { w: currentImage.width, h: currentImage.height };
+        }
       } else {
         const maxDim = QUALITY_SIZES[currentQuality].maxDim;
         size = calculateSize(maxDim);
@@ -693,12 +714,12 @@ t.penup()
 ox = -(W * PS) // 2
 oy = (H * PS) // 2
 
-# Draw using dot() - much faster than rectangles
-for i in range(W * H):
+# Draw with stride for performance
+for i in range(0, W * H, stride):
     x = i % W
     y = i // W
     t.goto(ox + x * PS + PS/2, oy - y * PS - PS/2)
-    t.dot(PS, '#' + DATA[i*6:i*6+6])
+    t.dot(PS * stride, '#' + DATA[i*6:i*6+6])
 
 t.hideturtle()
 screen.update()
