@@ -734,8 +734,8 @@ for y, row in enumerate(DATA):
     x = 0
     for count, color in row:
         for _ in range(count):
-            t.goto(ox + x * PS + PS/2, oy - y * PS - PS/2)
-            t.dot(PS, '#' + color)
+            t.goto(ox + x * PS, oy - y * PS)
+            t.dot(PS + 1, '#' + color)
             x += 1
 
 t.hideturtle()
@@ -771,8 +771,8 @@ oy = (H * PS) // 2
 for i in range(W * H):
     x = i % W
     y = i // W
-    t.goto(ox + x * PS + PS/2, oy - y * PS - PS/2)
-    t.dot(PS, '#' + DATA[i*6:i*6+6])
+    t.goto(ox + x * PS, oy - y * PS)
+    t.dot(PS + 1, '#' + DATA[i*6:i*6+6])
 
 t.hideturtle()
 screen.update()
