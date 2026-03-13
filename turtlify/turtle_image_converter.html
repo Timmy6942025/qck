@@ -710,16 +710,12 @@ oy = (H * PS) // 2
 for y in range(H):
     for x in range(W):
         color = '#' + DATA[(y * W + x)*6:(y * W + x)*6+6]
-        t.goto(ox + x * PS, oy - y * PS)
+        t.goto(ox + x * PS + PS/2, oy - y * PS - PS/2)
         t.fillcolor(color)
         t.begin_fill()
-        t.forward(PS + 1)
-        t.right(90)
-        t.forward(PS + 1)
-        t.right(90)
-        t.forward(PS + 1)
-        t.right(90)
-        t.forward(PS + 1)
+        for _ in range(4):
+            t.forward(PS)
+            t.right(90)
         t.end_fill()
 
 t.hideturtle()
