@@ -42,7 +42,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 32px 20px;
+      padding: 20px 16px;
       transition: background var(--transition), color var(--transition);
     }
 
@@ -55,7 +55,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 28px;
+      margin-bottom: 16px;
     }
 
     h1 {
@@ -91,11 +91,11 @@
     .upload-area {
       border: 1px dashed var(--border);
       border-radius: var(--radius);
-      padding: 32px 20px;
+      padding: 20px 16px;
       text-align: center;
       cursor: pointer;
       transition: border-color var(--transition), background var(--transition);
-      margin-bottom: 20px;
+      margin-bottom: 8px;
       background: var(--bg-secondary);
     }
 
@@ -143,7 +143,7 @@
     }
 
     .quality-section, .options-section {
-      margin-bottom: 20px;
+      margin-bottom: 8px;
     }
 
     .section-label {
@@ -245,7 +245,7 @@
     }
 
     .preview-section {
-      margin-bottom: 20px;
+      margin-bottom: 8px;
     }
 
     .preview-header {
@@ -273,7 +273,7 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 12px;
+      padding: 8px;
     }
 
     .preview-container.visible {
@@ -283,14 +283,14 @@
     #previewCanvas {
       display: block;
       max-width: 100%;
-      max-height: 200px;
+      max-height: 160px;
       margin: 0 auto;
       image-rendering: pixelated;
       border-radius: 3px;
     }
 
     .output-section {
-      margin-bottom: 20px;
+      margin-bottom: 8px;
     }
 
     .output-label {
@@ -304,11 +304,11 @@
 
     #outputCode {
       width: 100%;
-      height: 200px;
+      height: 160px;
       background: var(--bg-secondary);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 12px;
+      padding: 8px;
       font-family: "JetBrains Mono", monospace;
       font-size: 10px;
       line-height: 1.6;
@@ -326,7 +326,7 @@
     .actions {
       display: flex;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .btn {
@@ -684,16 +684,19 @@ screen = turtle.Screen()
 screen.setup(W * PS + 40, H * PS + 40)
 
 t = turtle.Turtle()
-t.hideturtle()
-t.speed(0)
+t.speed(6)
 t.penup()
 
 ox = -(W * PS) // 2
 oy = (H * PS) // 2
 
+last_y = -1
 for i in range(W * H):
     x = i % W
     y = i // W
+    if y != last_y:
+        screen.update()
+        last_y = y
     t.goto(ox + x * PS, oy - y * PS)
     t.color('#' + DATA[i*6:i*6+6])
     t.begin_fill()
@@ -702,8 +705,8 @@ for i in range(W * H):
     t.goto(ox + x * PS, oy - y * PS - PS)
     t.goto(ox + x * PS, oy - y * PS)
     t.end_fill()
-    screen.update()
 
+screen.update()
 t.hideturtle()
 turtle.done()
 `;
