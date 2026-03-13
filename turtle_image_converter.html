@@ -684,19 +684,16 @@ screen = turtle.Screen()
 screen.setup(W * PS + 40, H * PS + 40)
 
 t = turtle.Turtle()
-t.speed(6)
+t.speed(0)
 t.penup()
 
 ox = -(W * PS) // 2
 oy = (H * PS) // 2
 
-last_y = -1
+chunk = (W * H) // 20 + 1
 for i in range(W * H):
     x = i % W
     y = i // W
-    if y != last_y:
-        screen.update()
-        last_y = y
     t.goto(ox + x * PS, oy - y * PS)
     t.color('#' + DATA[i*6:i*6+6])
     t.begin_fill()
@@ -705,9 +702,11 @@ for i in range(W * H):
     t.goto(ox + x * PS, oy - y * PS - PS)
     t.goto(ox + x * PS, oy - y * PS)
     t.end_fill()
+    if i > 0 and i % chunk == 0:
+        screen.update()
 
-screen.update()
 t.hideturtle()
+screen.update()
 turtle.done()
 `;
       } else {
