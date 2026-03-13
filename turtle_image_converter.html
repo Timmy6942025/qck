@@ -438,6 +438,7 @@
         <button class="quality-btn" data-quality="low">Low</button>
         <button class="quality-btn active" data-quality="medium">Medium</button>
         <button class="quality-btn" data-quality="high">High</button>
+        <button class="quality-btn" data-quality="extrahigh">Extra High</button>
         <button class="quality-btn" data-quality="optimized">Optimized</button>
         <button class="quality-btn" data-quality="lossless">Lossless</button>
       </div>
@@ -605,11 +606,18 @@
       let renderW, renderH, actualW, actualH;
       
       if (currentQuality === 'lossless') {
-        actualW = currentImage.width;
-        actualH = currentImage.height;
-        const scale = Math.min(previewW / actualW, previewH / actualH);
-        renderW = Math.round(actualW * scale);
-        renderH = Math.round(actualH * scale);
+        // Cap at 150x150 to prevent crashes
+        const maxLossless = 150;
+        if (currentImage.width > maxLossless || currentImage.height > maxLossless) {
+          const scale = maxLossless / Math.max(currentImage.width, currentImage.height);
+          actualW = Math.round(currentImage.width * scale);
+          actualH = Math.round(currentImage.height * scale);
+        } else {
+          actualW = currentImage.width;
+          actualH = currentImage.height;
+        }
+        renderW = actualW;
+        renderH = actualH;
         dimInfo.textContent = `${actualW}x${actualH}`;
       } else if (currentQuality === 'optimized') {
         const maxDim = 100;
@@ -669,8 +677,17 @@
       if (!currentImage) return;
 
       let size;
+      let stride = 1;
+      
       if (currentQuality === 'lossless') {
-        size = { w: currentImage.width, h: currentImage.height };
+        // Cap at 150x150 to prevent browser/Trinket crashes while still high quality
+        const maxLossless = 150;
+        if (currentImage.width > maxLossless || currentImage.height > maxLossless) {
+          const scale = maxLossless / Math.max(currentImage.width, currentImage.height);
+          size = { w: Math.round(currentImage.width * scale), h: Math.round(currentImage.height * scale) };
+        } else {
+          size = { w: currentImage.width, h: currentImage.height };
+        }
       } else if (currentQuality === 'optimized') {
         const maxDim = 100;
         if (currentImage.width > maxDim || currentImage.height > maxDim) {
@@ -687,20 +704,24 @@
       const imageData = resizeImageData(currentImage, size.w, size.h);
       const data = imageData.data;
 
-      let hexStr = '';
+      // Build hex string efficiently
+      const hexChars = [];
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i], g = data[i + 1], b = data[i + 2];
-        hexStr += (r < 16 ? '0' : '') + r.toString(16) +
-                  (g < 16 ? '0' : '') + g.toString(16) +
-                  (b < 16 ? '0' : '') + b.toString(16);
+        hexChars.push(
+          (r < 16 ? '0' : '') + r.toString(16) +
+          (g < 16 ? '0' : '') + g.toString(16) +
+          (b < 16 ? '0' : '') + b.toString(16)
+        );
       }
+      const hexStr = hexChars.join('');
 
       const maxDimension = 500;
       const PS = Math.min(8, Math.max(2, Math.floor(maxDimension / Math.max(size.w, size.h))));
 
       generatedCode = `import turtle
 
-W, H, PS = ${size.w}, ${size.h}, ${PS}
+W, H, PS, stride = ${size.w}, ${size.h}, ${PS}, ${stride}
 DATA = "${hexStr}"
 
 screen = turtle.Screen()
@@ -714,12 +735,11 @@ t.penup()
 ox = -(W * PS) // 2
 oy = (H * PS) // 2
 
-# Draw with stride for performance
 for i in range(0, W * H, stride):
     x = i % W
     y = i // W
     t.goto(ox + x * PS + PS/2, oy - y * PS - PS/2)
-    t.dot(PS * stride, '#' + DATA[i*6:i*6+6])
+    t.dot(PS, '#' + DATA[i*6:i*6+6])
 
 t.hideturtle()
 screen.update()
