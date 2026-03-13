@@ -678,7 +678,6 @@
       const imageData = resizeImageData(currentImage, size.w, size.h);
       const data = imageData.data;
 
-      let generatedCode;
       const maxDimension = 500;
       const PS = Math.min(8, Math.max(2, Math.floor(maxDimension / Math.max(size.w, size.h))));
 
