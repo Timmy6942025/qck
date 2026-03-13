@@ -679,82 +679,19 @@
       const maxDimension = 500;
       const PS = Math.min(8, Math.max(2, Math.floor(maxDimension / Math.max(size.w, size.h))));
 
-      if (currentQuality === 'max') {
-        // Use RLE for max mode to handle large images efficiently
-        const rows = [];
-        for (let y = 0; y < size.h; y++) {
-          const row = [];
-          let runCount = 1;
-          let prevColor = null;
-          
-          for (let x = 0; x < size.w; x++) {
-            const idx = (y * size.w + x) * 4;
-            const hexColor = 
-              (data[idx] < 16 ? '0' : '') + data[idx].toString(16) +
-              (data[idx + 1] < 16 ? '0' : '') + data[idx + 1].toString(16) +
-              (data[idx + 2] < 16 ? '0' : '') + data[idx + 2].toString(16);
-            
-            if (prevColor && hexColor === prevColor && runCount < 255) {
-              runCount++;
-            } else {
-              if (prevColor !== null) {
-                row.push([runCount, prevColor]);
-              }
-              runCount = 1;
-              prevColor = hexColor;
-            }
-          }
-          if (prevColor) {
-            row.push([runCount, prevColor]);
-          }
-          rows.push(row);
-        }
+      // Build hex string efficiently
+      const hexChars = [];
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i + 1], b = data[i + 2];
+        hexChars.push(
+          (r < 16 ? '0' : '') + r.toString(16) +
+          (g < 16 ? '0' : '') + g.toString(16) +
+          (b < 16 ? '0' : '') + b.toString(16)
+        );
+      }
+      const hexStr = hexChars.join('');
 
-        const rleData = JSON.stringify(rows);
-
-        generatedCode = `import turtle
-
-W, H, PS = ${size.w}, ${size.h}, ${PS}
-DATA = ${rleData}
-
-screen = turtle.Screen()
-screen.tracer(0)
-screen.setup(W * PS + 40, H * PS + 40)
-
-t = turtle.Turtle()
-t.speed(0)
-t.shape('square')
-t.shapesize(PS / 20)
-t.penup()
-
-ox = -(W * PS) // 2
-oy = (H * PS) // 2
-
-for y, row in enumerate(DATA):
-    x = 0
-    for count, color in row:
-        for i in range(count):
-            t.goto(ox + x * PS, oy - y * PS)
-            t.color(color)
-            t.stamp()
-            x += 1
-
-t.hideturtle()
-screen.update()
-turtle.done()
-`;
-
-      } else {
-        // Simple direct approach for smaller images
-        let hexStr = '';
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i + 1], b = data[i + 2];
-          hexStr += (r < 16 ? '0' : '') + r.toString(16) +
-                    (g < 16 ? '0' : '') + g.toString(16) +
-                    (b < 16 ? '0' : '') + b.toString(16);
-        }
-
-        generatedCode = `import turtle
+      generatedCode = `import turtle
 
 W, H, PS = ${size.w}, ${size.h}, ${PS}
 DATA = "${hexStr}"
@@ -783,8 +720,6 @@ t.hideturtle()
 screen.update()
 turtle.done()
 `;
-      }
-
       outputCode.textContent = generatedCode;
       copyBtn.disabled = false;
     });
